@@ -17,6 +17,88 @@
             --radikale-blue: #1a5d7e;
         }
 
+        /* Login Screen Styles */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--radikale-blue) 100%);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .login-title {
+            color: var(--primary-green);
+            font-weight: bold;
+            margin-bottom: 2rem;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: var(--light-green);
+            transform: translateY(-2px);
+        }
+
+        .login-error {
+            color: #dc2626;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: none;
+        }
+
+        .main-content.authenticated {
+            display: block;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
@@ -216,10 +298,31 @@
     </style>
 </head>
 <body>
-    <!-- GitHub Link -->
-    <a href="https://github.com/rukgithub" class="github-link" target="_blank">
-        <i class="fab fa-github me-2"></i>GitHub
-    </a>
+    <!-- Login Screen -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-container">
+            <div class="login-logo">🌲</div>
+            <h2 class="login-title">Allemandsret Danmark</h2>
+            <p class="text-muted mb-4">Indtast adgangskode for at fortsætte</p>
+            <form id="loginForm">
+                <input type="password" id="passwordInput" class="login-input" placeholder="Adgangskode" required>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-unlock me-2"></i>
+                    Log ind
+                </button>
+                <div id="loginError" class="login-error" style="display: none;">
+                    Forkert adgangskode. Prøv igen.
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="main-content">
+        <!-- GitHub Link -->
+        <a href="https://github.com/rukgithub" class="github-link" target="_blank">
+            <i class="fab fa-github me-2"></i>GitHub
+        </a>
 
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
@@ -720,10 +823,39 @@
             });
         });
 
-        // Initialize map when page loads
+        // Initialize everything when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            initMap();
+            // Check if already authenticated
+            if (sessionStorage.getItem('authenticated') === 'true') {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainContent').classList.add('authenticated');
+                initMap();
+            }
+            
+            // Setup login form handler
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const password = document.getElementById('passwordInput').value;
+                const correctPassword = 'H2global';
+                
+                if (password === correctPassword) {
+                    // Hide login overlay
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    // Show main content
+                    document.getElementById('mainContent').classList.add('authenticated');
+                    // Store login state
+                    sessionStorage.setItem('authenticated', 'true');
+                    // Initialize map after successful login
+                    initMap();
+                } else {
+                    // Show error message
+                    document.getElementById('loginError').style.display = 'block';
+                    document.getElementById('passwordInput').value = '';
+                    document.getElementById('passwordInput').focus();
+                }
+            });
         });
     </script>
+    </div> <!-- End Main Content -->
 </body>
 </html> 
